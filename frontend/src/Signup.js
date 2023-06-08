@@ -1,25 +1,27 @@
 import React, { useState } from 'react';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Signup = () => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [age, setAge] = useState('');
+  const [nameOfUser, setName] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle signup logic here
-    console.log('Signup:', email, password);
-
     try {
         const response = await fetch('/signup', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({ username, password, age, nameOfUser }),
         });
   
         if (response.ok) {
           console.log('Signup successful');
+          toast.success('Sign-up successful!');
           // Handle successful signup, such as redirecting to a success page
         } else {
           console.log('Signup failed');
@@ -36,10 +38,10 @@ const Signup = () => {
       <h2 style={styles.heading}>Sign up</h2>
       <form onSubmit={handleSubmit} style={styles.form}>
         <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          type="username"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
           style={styles.input}
         />
         <input
@@ -47,6 +49,20 @@ const Signup = () => {
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          style={styles.input}
+        />
+        <input
+          type="name"
+          placeholder="Name"
+          value={nameOfUser}
+          onChange={(e) => setName(e.target.value)}
+          style={styles.input}
+        />
+        <input
+          type="age"
+          placeholder="Age"
+          value={age}
+          onChange={(e) => setAge(e.target.value)}
           style={styles.input}
         />
         <button type="submit" style={styles.button}>
