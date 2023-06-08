@@ -6,20 +6,21 @@ const userSchema = new mongoose.Schema({
   age: Number,
   username: String,
   password: String,
+  role: String,
 });
 
 // Hash the password before saving
-userSchema.pre('save', function(next) {
+userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) {
     return next();
   }
 
   try {
-    const hashedPassword = bcrypt.hash(this.password, 10);
+    const hashedPassword = await bcrypt.hash(this.password, 10);
     this.password = hashedPassword;
-    next();
+    return next();
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
