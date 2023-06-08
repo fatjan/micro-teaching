@@ -72,7 +72,6 @@ app.post('/login', async (req, res) => {
 
   // Generate and send a JWT token
   const payload = { userId: user._id, username: user.username, name: user.name, role: user.role };
-  console.log('payload', payload);
   const secretKey = 'this-is-a-secret-key';
   const token = jwt.sign(payload, secretKey, { expiresIn: '1h' });
   res.json({ message: 'Login successful', token });
