@@ -101,7 +101,6 @@ app.post('/feed', async (req, res) => {
   try {
     const secretKey = 'this-is-a-secret-key';
     const decoded = jwt.verify(token, secretKey);
-    console.log('decoded', decoded);
     const userRole = decoded.role;
     if (userRole !== 'user') {
       return res.status(401).json({ message: 'You are not authorized to post a feed.' });
@@ -121,6 +120,33 @@ app.post('/feed', async (req, res) => {
   } catch (error) {
     return res.status(401).json({ message: `${error}` });
   }
+});
+
+
+// Get all posts endpoint
+app.get('/feed', async (req, res) => {
+  let token;
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.substring(7);
+  } else {
+    return res.status(401).json({ message: 'Missing authorization header.' });
+  }
+
+  try {
+    const secretKey = 'this-is-a-secret-key';
+    const decoded = jwt.verify(token, secretKey);
+    const userRole = decoded.role;
+    if (userRole !== 'admin') {
+      return res.status(401).json({ message: 'You are not authorized to get all posts from feed.' });
+    }
+    
+    const posts = await Post.find({}).populate('author');
+    return res.status(201).json({ message: 'Feed obtained successfully', posts });
+  } catch (error) {
+    return res.status(401).json({ message: `${error}` });
+  }
+
 });
 
 // Start the server
