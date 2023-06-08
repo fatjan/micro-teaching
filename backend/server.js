@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const User = require('./models/user');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const Post = require('./models/post');
 
 const app = express();
 
@@ -23,10 +24,12 @@ mongoose.connect('mongodb+srv://fatmastorage:bEIZ7pgb6olEbjEl@cluster0.yrfbwe3.m
     console.error('Error connecting to MongoDB:', error);
   });
 
+
 // Health check endpoint
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'OK' });
   });
+
 
 // Signup endpoint
 app.post('/signup', async (req, res) => {
@@ -43,19 +46,20 @@ app.post('/signup', async (req, res) => {
         age,
         username,
         password,
+        role: 'user',
     });
 
     newUser.save() // save to database
 
     res.status(201).json({ message: 'User registered successfully' });
   });
-  
+
+
 // Login endpoint
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
   // Check if the user exists
   const user = await User.findOne({ username });
-  console.log('user', user);
   if (!user) {
     return res.status(401).json({ message: 'Invalid username or password' });
   }
@@ -67,8 +71,56 @@ app.post('/login', async (req, res) => {
   }
 
   // Generate and send a JWT token
-  const token = jwt.sign({ username: user.username, name: user.name }, 'secretKey');
+  const payload = { userId: user._id, username: user.username, name: user.name, role: user.role };
+  console.log('payload', payload);
+  const secretKey = 'this-is-a-secret-key';
+  const token = jwt.sign(payload, secretKey, { expiresIn: '1h' });
   res.json({ message: 'Login successful', token });
+});
+
+
+// Get all users endpoint
+app.get('/users', async (req, res) => {
+  const users = await User.find({});
+  res.json(users);
+});
+
+
+// Post feed endpoint
+app.post('/feed', async (req, res) => {
+  let token;
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.substring(7);
+  } else {
+    return res.status(401).json({ message: 'Missing authorization header.' });
+  }
+
+  const { content } = req.body;
+
+  try {
+    const secretKey = 'this-is-a-secret-key';
+    const decoded = jwt.verify(token, secretKey);
+    console.log('decoded', decoded);
+    const userRole = decoded.role;
+    if (userRole !== 'user') {
+      return res.status(401).json({ message: 'You are not authorized to post a feed.' });
+    }
+    
+    // Create a new post instance
+    const newPost = new Post({
+      content,
+      author: decoded.userId // Assuming you have user authentication and can access the current user's ID
+    });
+
+    // Save the post to the database
+    const savedPost = await newPost.save();
+
+    // Send a success response
+    return res.status(201).json({ message: 'Feed posted successfully', post: savedPost });
+  } catch (error) {
+    return res.status(401).json({ message: `${error}` });
+  }
 });
 
 // Start the server
