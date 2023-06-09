@@ -2,16 +2,15 @@ import React, { useState, useEffect } from 'react';
 import Post from './Post';
 import './feed.css';
 import PostForm from './PostForm';
-import { getCurrentUser, getToken, clearToken, clearCurrentUser } from './api/auth';
+import { getCurrentUser, clearToken, clearCurrentUser } from './api/auth';
 import { formatTimestamp } from './utils';
 import { useNavigate } from 'react-router-dom';
-import { fetchPosts } from './api/posts';
+import { fetchPosts, createPost } from './api/posts';
 
 const Feed = () => {
     const [feedPosts, setPosts] = useState([]);
     const currentUser = getCurrentUser();
     const { name, role } = currentUser;
-    const token = getToken();
     const navigate = useNavigate();
     
     useEffect(() => {
@@ -22,17 +21,8 @@ const Feed = () => {
 
     const handlePost = async (postText) => {
     try {
-        const response = await fetch('/feed', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`, // Include the token in the request headers
-        },
-        body: JSON.stringify({ content: postText }), // Convert the post text to JSON
-        });
-    
+        const response = await createPost(postText);
         if (response.ok) {
-          const data = await response.json();
           // Refetch the updated post data
           const updatedPosts = await fetchPosts();
           setPosts(updatedPosts.posts.reverse());
