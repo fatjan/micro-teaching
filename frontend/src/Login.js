@@ -1,13 +1,37 @@
 import React, { useState } from 'react';
+import { login } from './api/auth';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const navigateToFeed = () => {
+    navigate("/feed"); // Navigate to the '/feed' route
+  };
+
+  const navigateToUsers = () => {
+    navigate("/users"); // Navigate to the '/feed' route
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     // Handle login logic here
-    console.log('Login:', email, password);
+    const result = await login(username, password);
+    if (result.success) {
+      // Redirect to the feed page or perform any desired actions
+      toast.success('Login successful!');
+      navigateToFeed();
+    } else {
+      const errorData = await result.json();
+      if (errorData && errorData.message) {
+        toast.error(`Login failed: ${errorData.message}`);
+      } else {
+        toast.error('Login failed. Please try again.');
+      }
+    }
   };
 
   return (
@@ -15,10 +39,10 @@ const Login = () => {
       <h2 style={styles.heading}>Login</h2>
       <form onSubmit={handleSubmit} style={styles.form}>
         <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          type="username"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
           style={styles.input}
         />
         <input
