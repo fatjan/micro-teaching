@@ -1,5 +1,6 @@
 // auth.js
 import { createContext } from 'react';
+import config from './config';
 
 export const AuthContext = createContext();
 
@@ -30,7 +31,7 @@ export const login = async (username, password) => {
     try {
       // Perform your login API request here
       // Assuming the response contains the user data
-      const response = await fetch('/login', {
+      const response = await fetch(`${config.backendUrl}/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -55,7 +56,7 @@ export const signup = async (username, password, age, name) => {
     try {
       // Perform your login API request here
       // Assuming the response contains the user data
-      const response = await fetch('/signup', {
+      const response = await fetch(`${config.backendUrl}/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

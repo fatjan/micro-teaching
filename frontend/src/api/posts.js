@@ -1,11 +1,11 @@
 import { getToken } from './auth';
+import config from './config';
 
-let posts = null;
 const token = getToken();
 
 export const fetchPosts = async () => {
     try {
-      const response = await fetch('/feed', {
+      const response = await fetch(`${config.backendUrl}/feed`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -22,3 +22,18 @@ export const fetchPosts = async () => {
     }
   };
 
+export const createPost = async (content) => {
+    try {
+      const response = await fetch(`${config.backendUrl}/feed`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ content }),
+      });
+      return response; // Save the posts data in feed.js
+    } catch (error) {
+      return { success: false, message: 'Error occurred during login' };
+    }
+};
