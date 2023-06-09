@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { login } from './api/auth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 const Login = () => {
@@ -9,11 +9,11 @@ const Login = () => {
   const navigate = useNavigate();
 
   const navigateToFeed = () => {
-    navigate("/feed"); // Navigate to the '/feed' route
+    navigate('/feed'); // Navigate to the '/feed' route
   };
 
   const navigateToUsers = () => {
-    navigate("/users"); // Navigate to the '/feed' route
+    navigate('/users'); // Navigate to the '/feed' route
   };
 
   const handleSubmit = async (e) => {
@@ -23,7 +23,12 @@ const Login = () => {
     if (result.success) {
       // Redirect to the feed page or perform any desired actions
       toast.success('Login successful!');
-      navigateToFeed();
+      if (result.data.user.role === 'admin') {
+        navigateToUsers();
+      }
+      else {
+        navigateToFeed();
+      }
     } else {
       const errorData = await result.json();
       if (errorData && errorData.message) {
@@ -56,6 +61,9 @@ const Login = () => {
           Login
         </button>
       </form>
+      <p style={styles.registerText}>
+        Don't have an account yet? <Link to="/signup">Register here</Link>
+      </p>
     </div>
   );
 };
