@@ -5,7 +5,7 @@ let currentUser = null; // Initialize currentUser as null
 const setCurrentUser = async (user) => {
     currentUser = user; // Set the currentUser with the user data
 };
-export const getCurrentUser = async () => {
+export const getCurrentUser = () => {
   return currentUser; // Get the currentUser data
 };
 export const clearCurrentUser = () => {
