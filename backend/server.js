@@ -96,6 +96,21 @@ app.post('/login', async (req, res) => {
 
 // Get all users endpoint
 app.get('/users', async (req, res) => {
+  let token;
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.substring(7);
+  } else {
+    return res.status(401).json({ message: 'Missing authorization header.' });
+  }
+
+  const secretKey = 'this-is-a-secret-key';
+  const decoded = jwt.verify(token, secretKey);
+  const userRole = decoded.role;
+  if (userRole !== 'admin') {
+    return res.status(401).json({ message: 'You are not authorized to get all users.' });
+  }
+
   const users = await User.find({});
   res.json(users);
 });
@@ -205,7 +220,7 @@ app.put('/user', upload.single('image'), async (req, res) => {
 });
 
 // Start the server
-const port = 3001;
+const port = 5001;
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
