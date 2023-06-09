@@ -1,14 +1,11 @@
 // auth.js
-import { createContext } from 'react';
 import config from './config';
 
-export const AuthContext = createContext();
-
 let currentUser = null; // Initialize currentUser as null
-export const setCurrentUser = (user) => {
+const setCurrentUser = async (user) => {
     currentUser = user; // Set the currentUser with the user data
 };
-export const getCurrentUser = () => {
+export const getCurrentUser = async () => {
   return currentUser; // Get the currentUser data
 };
 export const clearCurrentUser = () => {
@@ -17,7 +14,7 @@ export const clearCurrentUser = () => {
 
 
 let token = null; // Initialize token as null
-const setToken = (data) => {
+const setToken = async (data) => {
     token = data; // Set the token with the token data
 }
 export const getToken = () => {
@@ -41,13 +38,14 @@ export const login = async (username, password) => {
   
       if (response.ok) {
         const data = await response.json();
-        setCurrentUser(data.user); // Save the user data in auth.js
-        setToken(data.token); // Save the token data in auth.js
+        await setCurrentUser(data.user); // Save the user data in auth.js
+        await setToken(data.token); // Save the token data in auth.js
         return { success: true, message: 'Login successful', data };
       } else {
         return { success: false, message: 'Invalid username or password' };
       }
     } catch (error) {
+      console.log('error', error);
       return { success: false, message: 'Error occurred during login' };
     }
   };
@@ -66,8 +64,8 @@ export const signup = async (username, password, age, name) => {
   
       if (response.ok) {
         const data = await response.json();
-        setCurrentUser(data.user); // Save the user data in auth.js
-        setToken(data.token); // Save the token data in auth.js
+        await setCurrentUser(data.user); // Save the user data in auth.js
+        await setToken(data.token); // Save the token data in auth.js
         return { success: true, message: 'Login successful', data };
       } else {
         return { success: false, message: 'Invalid username or password' };

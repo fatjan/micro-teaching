@@ -1,9 +1,8 @@
 import { getToken } from './auth';
 import config from './config';
 
-const token = getToken();
-
 export const fetchPosts = async () => {
+    const token = getToken();
     try {
       const response = await fetch(`${config.backendUrl}/feed`, {
         method: 'GET',
@@ -23,6 +22,7 @@ export const fetchPosts = async () => {
   };
 
 export const createPost = async (content) => {
+    const token = getToken();
     try {
       const response = await fetch(`${config.backendUrl}/feed`, {
         method: 'POST',

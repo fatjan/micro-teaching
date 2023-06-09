@@ -2,10 +2,9 @@
 import { getToken } from './auth';
 import config from './config';
 
-const token = getToken();
-
 // Function to fetch users from the API endpoint
 export const getUsers = async () => {
+    const token = getToken();
     try {
       const response = await fetch(`${config.backendUrl}/users`, {
         method: 'GET',
