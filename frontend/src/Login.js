@@ -30,9 +30,9 @@ const Login = () => {
         navigateToFeed();
       }
     } else {
-      const errorData = await result.json();
+      const errorData = result;
       if (errorData && errorData.message) {
-        toast.error(`Login failed: ${errorData.message}`);
+        toast.error(`Login failed: ${errorData.message}.`);
       } else {
         toast.error('Login failed. Please try again.');
       }
