@@ -7,6 +7,13 @@ const userSchema = new mongoose.Schema({
   username: String,
   password: String,
   role: String,
+  image: {
+    data: Buffer, // Binary data of the image
+    contentType: String, // MIME type of the image
+    filename: String, // Filename of the image
+    originalname: String, // Original filename of the image
+    path: String, // Path of the uploaded image file
+  },
 });
 
 // Hash the password before saving
