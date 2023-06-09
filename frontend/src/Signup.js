@@ -1,31 +1,32 @@
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate, Link } from 'react-router-dom';
+import { signup } from './api/auth';
 
 const Signup = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [age, setAge] = useState('');
   const [nameOfUser, setName] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-        const response = await fetch('/signup', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ username, password, age, nameOfUser }),
-        });
-  
-        if (response.ok) {
-          console.log('Signup successful');
+        const response = await signup(username, password, age, nameOfUser);
+        
+        if (response.success) {
           toast.success('Sign-up successful!');
-          // Handle successful signup, such as redirecting to a success page
+          navigate('/feed');
+          toast.success('Welcome!');
         } else {
-          console.log('Signup failed');
-          // Handle signup failure, such as displaying an error message
+          const errorData = await response.json();
+          if (errorData && errorData.message) {
+            toast.error(`Sign-up failed: ${errorData.message}`);
+          } else {
+            toast.error('Sign-up failed. Please try again.');
+          }
         }
       } catch (error) {
         console.log('Error occurred during signup:', error);
@@ -69,6 +70,9 @@ const Signup = () => {
           Sign up
         </button>
       </form>
+      <p style={styles.loginText}>
+        Already have an account? <Link to="/login">Login here</Link>
+      </p>
     </div>
   );
 };
