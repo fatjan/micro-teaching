@@ -1,0 +1,26 @@
+.post-form {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.post-textarea {
+  resize: vertical;
+  padding: 10px;
+  border: 1px solid #f06292; /* Pink border */
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.post-button {
+  background-color: #f06292; /* Pink background */
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.post-button:hover {
+  background-color: #ec407a; /* Lighter pink background on hover */
+}
