@@ -6,6 +6,8 @@ import { clearToken, clearCurrentUser } from './api/auth';
 
 const UsersPage = () => {
   const [users, setUsers] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [usersPerPage] = useState(10);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -27,6 +29,16 @@ const UsersPage = () => {
       });
   }, []);
 
+  // Calculate indices for pagination
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
+
+  // Change page
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
   return (
     <div className="users-container">
       <button className="logout-button" onClick={handleLogout}>
@@ -36,14 +48,16 @@ const UsersPage = () => {
       <table className="users-table">
         <thead>
           <tr>
+            <th>Number</th> {/* Add the numbered column */}
             <th>Name</th>
             <th>Email</th>
             <th>Role</th>
           </tr>
         </thead>
         <tbody>
-          {users.map((user) => (
+          {currentUsers.map((user, index) => (
             <tr key={user._id}>
+              <td>{index + 1}</td> {/* Add the numbered column */}
               <td>{user.name}</td>
               <td>{user.username}</td>
               <td>{user.role}</td>
@@ -51,6 +65,17 @@ const UsersPage = () => {
           ))}
         </tbody>
       </table>
+      <div className="pagination">
+        {Array.from({ length: Math.ceil(users.length / usersPerPage) }).map((_, index) => (
+          <button
+            key={index + 1}
+            onClick={() => handlePageChange(index + 1)}
+            className={currentPage === index + 1 ? 'active' : ''}
+          >
+            {index + 1}
+          </button>
+        ))}
+      </div>
     </div>
   );
 };
