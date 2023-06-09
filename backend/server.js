@@ -6,8 +6,20 @@ const User = require('./models/user');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const Post = require('./models/post');
+const multer = require('multer');
 
 const app = express();
+
+// Configure Multer storage
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/'); // Specify the directory where files will be saved
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + '-' + file.originalname); // Generate a unique filename
+  },
+});
+const upload = multer({ storage });
 
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -51,7 +63,11 @@ app.post('/signup', async (req, res) => {
 
     newUser.save() // save to database
 
-    res.status(201).json({ message: 'User registered successfully' });
+    const payload = { userId: newUser._id, username: newUser.username, name: newUser.name, role: newUser.role };
+    const secretKey = 'this-is-a-secret-key';
+    const token = jwt.sign(payload, secretKey, { expiresIn: '1h' });
+
+    res.status(201).json({ message: 'User registered successfully', token, user: payload });
   });
 
 
@@ -74,7 +90,7 @@ app.post('/login', async (req, res) => {
   const payload = { userId: user._id, username: user.username, name: user.name, role: user.role };
   const secretKey = 'this-is-a-secret-key';
   const token = jwt.sign(payload, secretKey, { expiresIn: '1h' });
-  res.json({ message: 'Login successful', token });
+  res.json({ message: 'Login successful', token, user: payload });
 });
 
 
@@ -136,7 +152,7 @@ app.get('/feed', async (req, res) => {
     const secretKey = 'this-is-a-secret-key';
     const decoded = jwt.verify(token, secretKey);
     const userRole = decoded.role;
-    if (userRole !== 'admin') {
+    if (userRole !== 'user') {
       return res.status(401).json({ message: 'You are not authorized to get all posts from feed.' });
     }
     
@@ -148,8 +164,48 @@ app.get('/feed', async (req, res) => {
 
 });
 
+
+// Edit user endpoint with upload image
+app.put('/user', upload.single('image'), async (req, res) => {
+  try {
+    const { file } = req;
+    const { username, name, age } = req.body;
+
+    // Find the user in MongoDB
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    if (file) {
+      // Update the user's image data
+      user.image = {
+        data: fs.readFileSync(file.path),
+        contentType: file.mimetype,
+        filename: file.filename,
+        originalname: file.originalname,
+        path: file.path
+      };
+    }
+    if (name) {
+      user.name = name;
+    }
+    if (age) {
+      user.age = age;
+    }
+
+    // Save the user to MongoDB
+    await user.save();
+
+    res.json({ success: true, message: 'User updated with image' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Error occurred during image upload' });
+  }
+});
+
 // Start the server
-const port = 3000;
+const port = 3001;
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
